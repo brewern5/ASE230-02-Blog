@@ -10,16 +10,18 @@ $post_id=$_GET['x'];
 ?>
 
 <html>
-    <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <div class="jumbotron text-center">
         <h1><?php echo $blogdata[$post_id]['title'] ?></h1>
         <hr>
-    </head>
-    <h3>
-        <?php echo $blogdata[$post_id]['content'] ?>
-    </h3>
-    <h5>
-        <?php echo $blogdata[0]['author'].' - '.$blogdata[0]['date'] ?>
-    </h5>
+        <h3>
+            <?php echo $blogdata[$post_id]['content'] ?>
+        </h3>
+        <h5>
+            <?php echo $blogdata[0]['author'].' - '.$blogdata[0]['date'] ?>
+        </h5>
+    </div>
 
 
 </html>
