@@ -1,11 +1,35 @@
 <?php
 
-$blogdata = [
-    ['title' => 'Title 1', 'content' => 'this is the content for title 1', 'author' => 'Danny Poff', 'date' => 'Today'],
-    ['title' => 'Title 2', 'content' => 'this is the content for title 2', 'author' => 'Nate Brewer', 'date' => 'Today Aswell']
-];
+//opening json to print page
+$contents=file_get_contents("posts.json");
+$blogdata=json_decode($contents,true);
 
+//getting id of page
 $post_id=$_GET['x'];
+
+//------counting views of this page-----//
+//reading elements
+$fp=fopen('visitors.csv','r');
+$i=0;
+$tempR = [];
+while(! feof($fp)) {
+  $temp = fgets($fp);
+  if(explode(';',$temp)[0] == $post_id){
+    $tempR[$i]=$post_id.';'.(explode(';',$temp)[1]+1).PHP_EOL;
+  }
+  else {
+    $tempR[$i]=$temp;
+  }
+  $i++;
+}
+fclose($fp);
+
+//writing elements
+$fp=fopen('visitors.csv','w');
+  for($i=0;$i<count($tempR);$i++) {
+    fputs($fp,$tempR[$i]);
+  }
+fclose($fp);
 
 ?>
 <!DOCTYPE html>
@@ -19,8 +43,8 @@ $post_id=$_GET['x'];
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/headers/">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
-    <link href="bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">    
 
     <div class="container">
         <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
@@ -49,10 +73,20 @@ $post_id=$_GET['x'];
         <h1><?php echo $blogdata[$post_id]['title'] ?></h1>
         <hr>
         <h3>
-            <?php echo $blogdata[$post_id]['content'] ?>
+          <?php echo $blogdata[$post_id]['content'] ?>
         </h3>
         <h5>
-            <?php echo $blogdata[0]['author'].' - '.$blogdata[0]['date'] ?>
+          <?php //prints visitor count
+            $fp=fopen('visitors.csv','r');
+            while(! feof($fp)) {
+              $temp = fgets($fp);
+              if(explode(';',$temp)[0] == $post_id){
+                echo 'Views: '.(explode(';',$temp)[1]).'<br />';
+              }
+            }
+            fclose($fp);
+          ?>
+          <?php echo $blogdata[0]['author'].' - '.$blogdata[0]['date'] ?>
         </h5>
     </div>
 
@@ -62,7 +96,7 @@ $post_id=$_GET['x'];
                 <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1">
                 <svg class="bi" width="30" height="24"><use xlink:href="#bootstrap"></use></svg>
                 </a>
-            <span class="mb-3 mb-md-0 text-body-secondary">© 2024 Danny Poff and Nate Brewer</span>
+                <span class="mb-3 mb-md-0 text-body-secondary">© 2024 Nate Brewer & Danny Poff</span>
             </div>
 
             <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
@@ -72,5 +106,4 @@ $post_id=$_GET['x'];
             </ul>
         </footer>
     </div>
-
 </html>
