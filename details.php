@@ -1,11 +1,35 @@
 <?php
 
-$blogdata = [
-    ['title' => 'Title 1', 'content' => 'this is the content for title 1', 'author' => 'Danny Poff', 'date' => 'Today'],
-    ['title' => 'Title 2', 'content' => 'this is the content for title 2', 'author' => 'Nate Brewer', 'date' => 'Today Aswell']
-];
+//opening json to print page
+$contents=file_get_contents("posts.json");
+$blogdata=json_decode($contents,true);
 
+//getting id of page
 $post_id=$_GET['x'];
+
+//------counting views of this page-----//
+//reading elements
+$fp=fopen('visitors.csv','r');
+$i=0;
+$tempR = [];
+while(! feof($fp)) {
+  $temp = fgets($fp);
+  if(explode(';',$temp)[0] == $post_id){
+    $tempR[$i]=$post_id.';'.(explode(';',$temp)[1]+1).PHP_EOL;
+  }
+  else {
+    $tempR[$i]=$temp;
+  }
+  $i++;
+}
+fclose($fp);
+
+//writing elements
+$fp=fopen('visitors.csv','w');
+  for($i=0;$i<count($tempR);$i++) {
+    fputs($fp,$tempR[$i]);
+  }
+fclose($fp);
 
 ?>
 <!DOCTYPE html>
@@ -49,10 +73,20 @@ $post_id=$_GET['x'];
         <h1><?php echo $blogdata[$post_id]['title'] ?></h1>
         <hr>
         <h3>
-            <?php echo $blogdata[$post_id]['content'] ?>
+          <?php echo $blogdata[$post_id]['content'] ?>
         </h3>
         <h5>
-            <?php echo $blogdata[0]['author'].' - '.$blogdata[0]['date'] ?>
+          <?php //prints visitor count
+            $fp=fopen('visitors.csv','r');
+            while(! feof($fp)) {
+              $temp = fgets($fp);
+              if(explode(';',$temp)[0] == $post_id){
+                echo 'Views: '.(explode(';',$temp)[1]).'<br />';
+              }
+            }
+            fclose($fp);
+          ?>
+          <?php echo $blogdata[0]['author'].' - '.$blogdata[0]['date'] ?>
         </h5>
     </div>
 
